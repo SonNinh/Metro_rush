@@ -126,6 +126,7 @@ class Station:
         self.trains = []
         self.connected_lines = []
         self.over = 0
+        self.occupied = False
     
     def update_line(self, new_line):
         """
@@ -156,14 +157,10 @@ class Station:
 
 
 class Train:
-    def __init__(self, index, station):
-        if not isinstance(index, int):
-            raise TypeError("index must be an int type object")
-        elif not isinstance(station, Station):
-            raise TypeError("station must be a Station type object")
+    def __init__(self, line, index):
         self.index = index
-        self.station = station
-        self.line = None
+        self.line = line
+        self.done = False
 
 
 class Base_Map:

@@ -6,12 +6,12 @@
 5:Welcome
 6:Seelampur
 7:Shastri Park
-8:Kashmere Gate:Conn: Violet Line
+8:Kashmere Gate
 9:Tis Hazari
 10:Pul Bangash
 11:Pratap Nagar
 12:Shastri Nagar
-13:Inder Lok:Conn: Green Line-Indrlok to Mundka
+13:Inder Lok
 14:Kanhaiya Nagar
 15:Keshav Puram
 16:Netaji Subhash Place:Conn: Pink Line
@@ -32,7 +32,7 @@
 9:Vishwavidyalaya
 10:Vidhan Sabha
 11:Civil Lines
-12:Kashmere Gate:Conn: Violet Line
+12:Kashmere Gat
 13:Chandni Chowk
 14:Chawri Bazar
 15:New Delhi:Conn: Airport Express
@@ -111,7 +111,7 @@
 5:IGI Airport
 6:Dwarka Sec-21-Airport
 #Violet Line
-1:Kashmere Gate:Conn: Yellow Line
+1:Kashmere Gat
 2:Lal Quila
 3:Jama Masjid
 4:Delhi Gate
@@ -190,5 +190,5 @@
 18:Lajpat Nagar:Conn: Violet Line
 
 START=Red Line:15
-END=Yellow Line:15
+END=Blue Line:36
 TRAINS=30
