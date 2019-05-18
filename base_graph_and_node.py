@@ -7,7 +7,7 @@ class Station_Line:
         self.stations = []
         self.crossing_lines = {}
         self.circular = False
-    
+
     def get_stations(self):
         return self.stations
 
@@ -18,7 +18,7 @@ class Station_Line:
         Input:
             - index: an int type object represents the index of the
             station
-        
+
         Output:
             - the station at that index
         """
@@ -28,7 +28,7 @@ class Station_Line:
             raise ValueError("index must be within the range from 0 and",
                              "the amount of stations in the line")
         return self.stations[index]
-    
+
     def get_station_by_name(self, station_name):
         """
         Get a station with certain name
@@ -58,7 +58,7 @@ class Station_Line:
         if isinstance(station, Station):
             station.update_line(self)
             self.stations.append(station)
-        else:   
+        else:
             raise TypeError("station must be a Station type object")
 
     def add_crossing_line(self, line_name, connect_station):
@@ -113,7 +113,7 @@ class Station_Line:
 
     def __str__(self):
         return "%s(\n\t\t%s)" % (
-            self.name, 
+            self.name,
             "\n\t\t".join([str(station) for station in self.stations])
         )
 
@@ -127,7 +127,7 @@ class Station:
         self.connected_lines = []
         self.over = 0
         self.occupied = False
-    
+
     def update_line(self, new_line):
         """
         Update a line that the station connect with
@@ -148,7 +148,7 @@ class Station:
 
     def __str__(self):
         return self.name
-    
+
     def __eq__(self, other_station):
         if isinstance(other_station, Station):
             return self.name == other_station.name
@@ -170,7 +170,7 @@ class Base_Map:
         self.trains = []
         self.start_station = None
         self.end_station = None
-    
+
     def add_line(self, line):
         """
         Add a line into the map
@@ -227,7 +227,7 @@ class Base_Map:
                 return None
         else:
             raise TypeError("station_index must be an int type object")
-    
+
     def get_station_by_name(self, station_name, line_name=None):
         """
         Get a station from the map indicates by its name.
@@ -256,17 +256,20 @@ class Base_Map:
             raise TypeError("station_name must be a str type object")
         return None
 
-
     def get_stations(self):
         """
         Get the list of all stations in the map
         """
         return_list = []
+        buffer = []
         # Get all the stations on each line and merge them together
         for line in self.lines:
-            return_list.extend(line.get_stations())
+            buffer.extend(line.get_stations())
         # Remove duplicate
-        return list(set(return_list))
+        for i, node in enumerate(buffer):
+            if node not in buffer[:i]:
+                return_list.append(node)
+        return return_list
 
     def update_start_end_station(self, line_name, station_index, end=False):
         """
@@ -296,7 +299,7 @@ class Base_Map:
             self.start_station = self.get_station_by_line(
                 line_name, station_index
             )
-    
+
     def initialize_trains(self, amount):
         """
         Create a number of trains on the map
