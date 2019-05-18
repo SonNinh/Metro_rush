@@ -205,7 +205,6 @@ def bfs(base_map, train, end_info, th):
                 if line.name != node[0]:
                     idx = line.get_stations().index(cur_node)
                     if base_map.get_station_by_line(line.name, idx).over < len(cur_conn_line):
-                        
                         bounding_nodes.append((line.name, idx))
                         base_map.get_station_by_line(line.name, idx).over += 1
                         
@@ -248,19 +247,23 @@ def bfs(base_map, train, end_info, th):
 
 def main2():
     base_map, start_info, end_info = read_input("delhi-metro-stations")
+    base_map.get_station_by_line(start_info[0], start_info[1]).occupied = True
     ls_trains = []
     num_train = 0
     compl = []
-    for _ in range(50):
+    while len(compl)<30:
         print(num_train)
-        if len(ls_trains)<30:
+        if len(ls_trains)<60:
             train1 = Train(start_info[0], start_info[1])
             ls_trains.append(train1)
             train2 = Train(start_info[0], start_info[1])
             ls_trains.append(train2)
+        base_map.get_station_by_line(start_info[0], start_info[1]).occupied = True
 
         for th, train in enumerate(ls_trains):
+            print(ls_trains[0].done)
             if not train.done:
+                train.path.append((train.line, train.index))
                 bounding_nodes = []
                 cur_node = base_map.get_station_by_line(train.line, train.index)
                 cur_conn_line = cur_node.get_conn_lines()
@@ -279,8 +282,9 @@ def main2():
                         if train.index < len(line.get_stations())-1 and not base_map.get_station_by_line(train.line, train.index+1).occupied:
                             bounding_nodes.append((train.line, train.index+1))
                             # base_map.get_station_by_line(node[0], node[1]+1).occupied = True
-
+                # print(bounding_nodes)
                 if len(bounding_nodes) == 1:
+                    print('a')
                     new_node = base_map.get_station_by_line(bounding_nodes[0][0], bounding_nodes[0][1])
                     
                     if bounding_nodes[0][0] == end_info[0] and bounding_nodes[0][1] == end_info[1]:
@@ -288,6 +292,9 @@ def main2():
                         num_train += 1
                         compl.append(th)
                         train.done = True
+                        train.line = bounding_nodes[0][0]
+                        train.index = bounding_nodes[0][1]
+                        cur_node.occupied = False
                     else:
                         if not new_node.occupied:
                             new_node.occupied = True
@@ -299,6 +306,7 @@ def main2():
                             train.line = bounding_nodes[0][0]
                             train.index = bounding_nodes[0][1]
                 elif len(bounding_nodes) > 1:
+                    print('b')
                     next_node = bfs(base_map, train, end_info, th)
                     if next_node:
                         new_node = base_map.get_station_by_line(next_node[0], next_node[1])
@@ -307,10 +315,12 @@ def main2():
                             num_train += 1
                             compl.append(th)
                             train.done = True
+                            train.line = next_node[0]
+                            train.index = next_node[1]
+                            cur_node.occupied = False
                         else:
                             if not new_node.occupied:
                                 new_node.occupied = True
-                        
                                 cur_node.occupied = False
                                 train.line = next_node[0]
                                 train.index = next_node[1]
@@ -324,7 +334,16 @@ def main2():
             print(i, train.line, train.index)
         print()
 
+
     print(compl)
+    for i in compl:
+        path = ls_trains[i].path
+        print("cost:", len(path)+1)
+        for stat in path:
+            print(stat)
+            # print(base_map.get_station_by_line(stat[0], stat[1]))
+
+        print()
 
 
 if __name__ == "__main__":

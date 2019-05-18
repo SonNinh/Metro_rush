@@ -161,6 +161,7 @@ class Train:
         self.index = index
         self.line = line
         self.done = False
+        self.path = []
 
 
 class Base_Map:
