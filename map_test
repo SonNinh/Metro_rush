@@ -1,0 +1,28 @@
+#Red
+1:start:Conn: Blue
+2:ngoc
+3:ba
+4:son
+5:freq
+6:ninh7
+7:end:Conn: Green
+#Blue
+1:start:Conn: Green
+2:snapchat
+3:facebook
+4:instagram
+5:utube
+6:twiter
+7:end:Conn: Red
+#Green
+1:start:Conn: Red
+2:Obama
+3:Bush
+4:Buffet
+5:Taylor
+6:Trump
+7:end:Conn: Blue
+
+START=Blue:1
+END=Green:7
+TRAINS=30

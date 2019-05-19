@@ -258,15 +258,16 @@ def bfs(base_map, train, start_info, end_info, th):
 
 
 def main2():
-    base_map, start_info, end_info = read_input("delhi-metro-stations")
+    # base_map, start_info, end_info = read_input("delhi-metro-stations")
+    base_map, start_info, end_info = read_input("map_test")
     base_map.get_station_by_line(start_info[0], start_info[1]).occupied = True
     ls_trains = []
     num_train = 0
     compl = []
-    while len(compl) < 30 :
+    while len(compl) < 60:
     # for i in range(5):
         # print(num_train)
-        if len(ls_trains) < 60:
+        if len(ls_trains) < 180:
             train1 = Train(start_info[0], start_info[1])
             ls_trains.append(train1)
             train2 = Train(start_info[0], start_info[1])
@@ -351,33 +352,48 @@ def main2():
         print(ls_trains[i].path)
         print()
 
+
     ls_stations = base_map.get_stations()
     num_train = 0
     cost = 0
     start_node = base_map.get_station_by_line(start_info[0], start_info[1])
+    end_node = base_map.get_station_by_line(end_info[0], end_info[1])
     for i in compl:
         start_node.trains.append((i, start_info[0], start_info[1]))
-    while num_train < 30:
+    while num_train <60:
         cost += 1
         for i in compl:
             if not ls_trains[i].done:
                 # print(len(ls_trains[i].path), i)
                 if len(ls_trains[i].path) > 1:
+                    # print(i)
                     station_info = ls_trains[i].path[1]
                     station = base_map.get_station_by_line(station_info[0], station_info[1])
-                    if (not station.trains) or station_info == end_info or station.trains[0][0] == i:
+                    if (not station.trains) or station == end_node or station.trains[0][0] == i:
+                        # print(i, 'a')
                         pre_station_info = ls_trains[i].path[0]
                         pre_station = base_map.get_station_by_line(pre_station_info[0], pre_station_info[1])
                         if pre_station_info == start_info:
-                            pop_idx = pre_station.trains.index((i, start_info[0], start_info[1]))
-                            pre_station.trains.pop(pop_idx)
+                            # print(i, 'b')
+                            # input()
+                            try:
+                                pop_idx = pre_station.trains.index((i, start_info[0], start_info[1]))
+                                pre_station.trains.pop(pop_idx)
+                            except Exception:
+                                pass
+
                         else:
+                            # print(i, 'c')
                             pre_station.trains = []
-                        station.trains = [(i, station_info[0], station_info[1])]
+                        if station_info == end_info:
+                            station.trains.append((i, station_info[0], station_info[1]))
+                        else:
+                            station.trains = [(i, station_info[0], station_info[1])]
                         ls_trains[i].path.pop(0)
                 else:
                     ls_trains[i].done = True
                     num_train += 1
+
         string = ''
         for sta in ls_stations:
             if sta.trains:
@@ -386,10 +402,11 @@ def main2():
                     string += 'T'+str(tau[0])
                 string += '|'
         print(string)
+        print(len(base_map.get_station_by_line(end_info[0], end_info[1]).trains))
         print()
     print('cost:', cost)
     # for i in compl:
-    #     print(ls_trains[i].path)
+    #     print(ls_trains[i].path)'''
 
 
 if __name__ == "__main__":
