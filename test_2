@@ -1,0 +1,38 @@
+#Violet Line
+1:Kashmere Gate:Conn: Yellow Line
+2:Lal Quila
+3:Jama Masjid
+4:Delhi Gate
+5:ITO
+6:Mandi House:Conn: Blue Line
+7:Central Secretariat:Conn: Yellow Line
+8:Janpath
+9:Khan Market
+10:Jawaharlal Nehru Stadium
+11:Jangpura
+12:Lajpat Nagar:Conn: Pink Line
+13:Moolchand
+14:Kailash Colony
+15:Nehru Place
+16:Kalkaji Mandir:Conn: Magenta Line
+17:Govind Puri
+18:Okhla
+19:Jasola
+20:Sarita Vihar
+21:Mohan Estate
+22:Tughlakabad
+23:Badarpur
+24:Sarai
+25:N.H.P.C. Chowk
+26:Mewala Maharajpur
+27:Sector 28 Faridabad
+28:Badkal Mor
+29:Old Faridabad
+30:Neelam Chowk Ajronda
+31:Bata Chowk
+32:Escorts Mujesar
+33:Kashmere Gate
+
+START=Violet Line:1
+END=Violet Line:15
+TRAINS=30

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from base_graph_and_node import Base_Map, Station, Station_Line, Train
+from base_graph import Base_Map, Station, Station_Line, Train
 from utility import print_error_message
 from time import time
 
@@ -44,7 +44,7 @@ def process_line_block(index, content, base_map):
             line_content = content[index].split(":")
         if not new_line.check_validity():
             print_error_message("Invalid file")
-    except ValueError:
+    except (ValueError):
         print_error_message("Invalid file")
     return index, new_line
 
@@ -68,7 +68,8 @@ def initialize_amount_of_trains(line_content, base_map):
         print_error_message("Invalid file")
     if amount_of_trains < 0:
         print_error_message("Invalid file")
-    base_map.initialize_trains(amount_of_trains)
+    # base_map.initialize_trains(amount_of_trains)
+    return amount_of_trains
 
 
 def process_start_end_line(line_content, base_map, end=False):
@@ -117,76 +118,14 @@ def read_input(file_name):
                 end_node = process_start_end_line(line_content, base_map, True)
                 index += 1
             elif line_content.startswith("TRAINS="):
-                initialize_amount_of_trains(line_content, base_map)
+                amount_of_trains = initialize_amount_of_trains(line_content, base_map)
                 index += 1
             elif line_content.isspace():
                 index += 1
             else:
                 print_error_message("Invalid file")
-        return base_map, start_node, end_node
+        return base_map, start_node, end_node, amount_of_trains
     return None
-
-
-def main():
-    base_map, start_info, end_info = read_input("map")
-
-    # start_node = base_map.start_station
-    # cur_conn_line = start_node.get_conn_lines()
-    # print([line.get_stations() for line in cur_conn_line])
-
-    # start_node = base_map.get_station_by_line(start_info[0], start_info[1])
-    # end_node = base_map.get_station_by_line(end_info[0], end_info[1])
-
-    base_map.get_station_by_line(start_info[0], start_info[1]).over = 1
-    layers = [[start_info]]
-    bounding_nodes = []
-    while end_info not in bounding_nodes:
-        bounding_nodes = []
-        for node in layers[-1]:
-            cur_node = base_map.get_station_by_line(node[0], node[1])
-
-            cur_conn_line = cur_node.get_conn_lines()
-
-            idx = 0
-            for i, line in enumerate(cur_conn_line):
-                if line.name != node[0]:
-                    idx = line.get_stations().index(cur_node)
-                    if base_map.get_station_by_line(line.name, idx).over < len(cur_conn_line):
-                        bounding_nodes.append((line.name, idx))
-                        base_map.get_station_by_line(line.name, idx).over += 1
-
-                else:
-                    if node[1] > 0 and base_map.get_station_by_line(node[0], node[1]-1).over == 0:
-                        bounding_nodes.append((node[0], node[1]-1))
-                        base_map.get_station_by_line(node[0], node[1]-1).over += 1
-                    if node[1] < len(line.get_stations())-1 and base_map.get_station_by_line(node[0], node[1]+1).over == 0:
-                        bounding_nodes.append((node[0], node[1]+1))
-                        base_map.get_station_by_line(node[0], node[1]+1).over += 1
-
-
-
-        if not  bounding_nodes:
-            break
-
-        layers.append(bounding_nodes)
-
-
-    path = [end_info]
-    cur_info = end_info
-    for layer in reversed(layers[:-1]):
-        for node in layer:
-            if node[0] == cur_info[0]:
-                if abs(node[1]-cur_info[1]) == 1:
-                    cur_info = node
-                    path.insert(0, cur_info)
-                    break
-            elif base_map.get_station_by_line(node[0], node[1]) == base_map.get_station_by_line(cur_info[0], cur_info[1]):
-                cur_info = node
-                path.insert(0, cur_info)
-                break
-
-    for i in path:
-        print(base_map.get_station_by_line(i[0], i[1]).name)
 
 
 def minimize(path):
@@ -197,42 +136,7 @@ def minimize(path):
     return result
 
 
-def bfs(base_map, train, start_info, end_info, th):
-
-    base_map.get_station_by_line(train.line, train.index).over = 1
-    layers = [[[train.line, train.index]]]
-    bounding_nodes = []
-    while end_info not in bounding_nodes:
-        bounding_nodes = []
-        for node in layers[-1]:
-            cur_node = base_map.get_station_by_line(node[0], node[1])
-
-            cur_conn_line = cur_node.get_conn_lines()
-
-            idx = 0
-            for i, line in enumerate(cur_conn_line):
-                if line.name != node[0]:
-                    idx = line.get_stations().index(cur_node)
-                    if base_map.get_station_by_line(line.name, idx).over < len(cur_conn_line):
-                        if not (line.name == start_info[0] and idx == start_info[1]):
-                            bounding_nodes.append((line.name, idx))
-                            base_map.get_station_by_line(line.name, idx).over += 1
-
-                else:
-                    if node[1] > 0 and base_map.get_station_by_line(node[0], node[1]-1).over == 0:
-                        if not (node[0] == start_info[0] and node[1]-1 == start_info[1]):
-                            bounding_nodes.append((node[0], node[1]-1))
-                            base_map.get_station_by_line(node[0], node[1]-1).over += 1
-                    if node[1] < len(line.get_stations())-1 and base_map.get_station_by_line(node[0], node[1]+1).over == 0:
-                        if not (node[0] == start_info[0] and node[1]+1 == start_info[1]):
-                            bounding_nodes.append((node[0], node[1]+1))
-                            base_map.get_station_by_line(node[0], node[1]+1).over += 1
-
-        if not bounding_nodes:
-            return None
-
-        layers.append(bounding_nodes)
-
+def find_path(layers, base_map, end_info):
     path = []
     cur_info = end_info
     for layer in reversed(layers):
@@ -247,27 +151,67 @@ def bfs(base_map, train, start_info, end_info, th):
                 cur_info = node
                 path.insert(0, cur_info)
 
+    return path
 
-    # for i in path:
-    #     print(base_map.get_station_by_line(i[0], i[1]).name)
+
+def find_bounding_nodes(base_map, layers, start_info):
+    bounding_nodes = []
+    for node in layers[-1]:
+        cur_node = base_map.get_station_by_line(node[0], node[1])
+        cur_conn_line = cur_node.get_conn_lines()
+
+        idx = 0
+        for i, line in enumerate(cur_conn_line):
+            if line.name != node[0]:
+                idx = line.get_stations().index(cur_node)
+                if base_map.get_station_by_line(line.name, idx).over < len(cur_conn_line):
+                    if not (line.name == start_info[0] and idx == start_info[1]):
+                        bounding_nodes.append((line.name, idx))
+                        base_map.get_station_by_line(line.name, idx).over += 1
+
+            else:
+                if node[1] > 0 and base_map.get_station_by_line(node[0], node[1]-1).over == 0:
+                    if not (node[0] == start_info[0] and node[1]-1 == start_info[1]):
+                        bounding_nodes.append((node[0], node[1]-1))
+                        base_map.get_station_by_line(node[0], node[1]-1).over += 1
+                if node[1] < len(line.get_stations())-1 and base_map.get_station_by_line(node[0], node[1]+1).over == 0:
+                    if not (node[0] == start_info[0] and node[1]+1 == start_info[1]):
+                        bounding_nodes.append((node[0], node[1]+1))
+                        base_map.get_station_by_line(node[0], node[1]+1).over += 1
+
+    return bounding_nodes
+
+
+def bfs(base_map, train, start_info, end_info, th):
+    '''
+    find sortest path from specified train to ending station using BFS
+    '''
+    base_map.get_station_by_line(train.line, train.index).over = 1
+    layers = [[[train.line, train.index]]]
+    bounding_nodes = []
+    while end_info not in bounding_nodes:
+        bounding_nodes = find_bounding_nodes(base_map, layers, start_info)
+        if not bounding_nodes:
+            return None
+        layers.append(bounding_nodes)
+
+    path = find_path(layers, base_map, end_info)
+
     try:
-
         return path[1]
     except Exception:
         return end_info
 
 
-def main2():
-    # base_map, start_info, end_info = read_input("delhi-metro-stations")
-    base_map, start_info, end_info = read_input("map_test")
+def main():
+    # base_map, start_info, end_info, amount_of_trains = read_input("test_2")
+    base_map, start_info, end_info, amount_of_trains = read_input("delhi-metro-stations")
     base_map.get_station_by_line(start_info[0], start_info[1]).occupied = True
     ls_trains = []
     num_train = 0
     compl = []
-    while len(compl) < 60:
-    # for i in range(5):
-        # print(num_train)
-        if len(ls_trains) < 180:
+    while len(compl) < amount_of_trains:
+        if len(ls_trains) < amount_of_trains*2:
             train1 = Train(start_info[0], start_info[1])
             ls_trains.append(train1)
             train2 = Train(start_info[0], start_info[1])
@@ -284,19 +228,16 @@ def main2():
                 for i, line in enumerate(cur_conn_line):
                     if line.name != train.line:
                         idx = line.get_stations().index(cur_node)
-                        # if not base_map.get_station_by_line(line.name, idx).occupied:
                         bounding_nodes.append((line.name, idx))
-                            # base_map.get_station_by_line(line.name, idx).over = True
 
                     else:
                         if train.index > 0 and not base_map.get_station_by_line(train.line, train.index-1).occupied:
                             bounding_nodes.append((train.line, train.index-1))
-                            # base_map.get_station_by_line(node[0], node[1]-1).occupied = True
                         if train.index < len(line.get_stations())-1 and not base_map.get_station_by_line(train.line, train.index+1).occupied:
                             bounding_nodes.append((train.line, train.index+1))
-                            # base_map.get_station_by_line(node[0], node[1]+1).occupied = True
-                # print(bounding_nodes)
+
                 if len(bounding_nodes) == 1:
+                    # if there is only 1 possible station to move from current train
                     new_node = base_map.get_station_by_line(bounding_nodes[0][0], bounding_nodes[0][1])
 
                     if bounding_nodes[0][0] == end_info[0] and bounding_nodes[0][1] == end_info[1]:
@@ -317,30 +258,26 @@ def main2():
                             train.line = bounding_nodes[0][0]
                             train.index = bounding_nodes[0][1]
                 elif len(bounding_nodes) > 1:
+                    # if there are more than 1 possible stations to move from current train
                     next_node = bfs(base_map, train, start_info, end_info, th)
-                    # print('next:', next_node)
                     if next_node:
                         new_node = base_map.get_station_by_line(next_node[0], next_node[1])
                         if next_node[0] == end_info[0] and next_node[1] == end_info[1]:
+                            # if next staion is the end staion
                             num_train += 1
                             compl.append(th)
                             train.done = True
-                            train.line = next_node[0]
-                            train.index = next_node[1]
                             cur_node.occupied = False
                         else:
                             if not new_node.occupied:
                                 new_node.occupied = True
                                 cur_node.occupied = False
-                                train.line = next_node[0]
-                                train.index = next_node[1]
-                            elif new_node == cur_node:
-                                # at interchange
-                                train.line = next_node[0]
-                                train.index = next_node[1]
 
-        for i, train in enumerate(ls_trains):
-            print(i, train.line, train.index)
+                        train.line = next_node[0]
+                        train.index = next_node[1]
+
+        # for i, train in enumerate(ls_trains):
+        #     print(i, train.line, train.index)
         print()
     compl.sort()
     print(compl)
@@ -352,7 +289,6 @@ def main2():
         print(ls_trains[i].path)
         print()
 
-
     ls_stations = base_map.get_stations()
     num_train = 0
     cost = 0
@@ -360,7 +296,7 @@ def main2():
     end_node = base_map.get_station_by_line(end_info[0], end_info[1])
     for i in compl:
         start_node.trains.append((i, start_info[0], start_info[1]))
-    while num_train <60:
+    while num_train < amount_of_trains:
         cost += 1
         for i in compl:
             if not ls_trains[i].done:
@@ -411,5 +347,5 @@ def main2():
 
 if __name__ == "__main__":
     # start = time()
-    main2()
+    main()
     # print('time:', time()-start)

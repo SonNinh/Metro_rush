@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from math import inf
+
+
 class Station_Line:
     def __init__(self, name):
         if not isinstance(name, str):
@@ -10,6 +13,36 @@ class Station_Line:
 
     def get_stations(self):
         return self.stations
+
+    def get_path_between_stations(self, station1, station2):
+        if not isinstance(station1, Station):
+            raise TypeError("station1 must be a Station type object")
+        elif not isinstance(station2, Station):
+            raise TypeError("station1 must be a Station type object")
+        elif station1 not in self.stations:
+            raise ValueError("station1 is not on this line")
+        elif station2 not in self.stations:
+            raise ValueError("station1 is not on this line")
+        if station1 is station2:
+            return []
+        start_index = self.stations.index(station1)
+        end_index = self.stations.index(station2)
+        if self.circular:
+            alternative_start_index = self.stations.index(station1, 1)
+            alternative_end_index = self.stations.index(station2, 1)
+            if (abs(alternative_start_index - alternative_end_index) <
+                    abs(start_index - end_index)):
+                start_index = alternative_start_index
+                end_index = alternative_end_index
+                return (self.stations[start_index - 1:end_index:-1]
+                        if start_index > end_index else
+                        self.stations[end_index - 1:start_index:-1])
+        if start_index < end_index:
+            return self.stations[start_index + 1: end_index]
+        else:
+            designated_path = self.stations[end_index + 1:start_index]
+            designated_path.reverse()
+            return designated_path
 
     def get_station_by_index(self, index):
         """
@@ -25,7 +58,7 @@ class Station_Line:
         if not isinstance(index, int):
             raise TypeError("index must be an int type object")
         if not (0 <= index <= len(self.stations) - 1):
-            raise ValueError("index must be within the range from 0 and",
+            raise ValueError("index must be within the range of 0 and",
                              "the amount of stations in the line")
         return self.stations[index]
 
@@ -125,6 +158,8 @@ class Station:
         self.name = name
         self.trains = []
         self.connected_lines = []
+        self.is_start_end_station = False
+        self.is_intersection = False
         self.over = 0
         self.occupied = False
 
@@ -145,7 +180,6 @@ class Station:
     def get_conn_lines(self):
         return self.connected_lines
 
-
     def __str__(self):
         return self.name
 
@@ -155,13 +189,34 @@ class Station:
         else:
             raise TypeError("other_station must be a Station type object")
 
+    def __hash__(self):
+        return hash(self.name)
+
 
 class Train:
     def __init__(self, line, index):
+        if not isinstance(index, int):
+            raise TypeError("index must be an int type object")
+        # elif not isinstance(station, Station):
+        #     raise TypeError("station must be a Station type object")
         self.index = index
+        # self.train_path = None
+
         self.line = line
         self.done = False
         self.path = []
+
+    '''def update_path(self, train_path):
+        if not isinstance(train_path, list):
+            raise TypeError("train_path must be a list type object")
+        elif any([not isinstance(item, Station) for item in train_path]):
+            raise ValueError(
+                "train_path must contain only Station type objects"
+            )
+        self.train_path = train_path
+
+    def move(self):
+        pass'''
 
 
 class Base_Map:
@@ -169,6 +224,7 @@ class Base_Map:
         self.lines = []
         self.trains = []
         self.start_station = None
+        self.starting_line = None
         self.end_station = None
 
     def add_line(self, line):
@@ -261,15 +317,11 @@ class Base_Map:
         Get the list of all stations in the map
         """
         return_list = []
-        buffer = []
         # Get all the stations on each line and merge them together
         for line in self.lines:
-            buffer.extend(line.get_stations())
+            return_list.extend(line.get_stations())
         # Remove duplicate
-        for i, node in enumerate(buffer):
-            if node not in buffer[:i]:
-                return_list.append(node)
-        return return_list
+        return list(set(return_list))
 
     def update_start_end_station(self, line_name, station_index, end=False):
         """
@@ -291,14 +343,11 @@ class Base_Map:
         if not designated_station:
             raise ValueError("Station doesn't exist")
         # Change the end or start station to the designated station
+        designated_station.is_start_end_station = True
         if end:
-            self.end_station = self.get_station_by_line(
-                line_name, station_index
-            )
+            self.end_station = designated_station
         else:
-            self.start_station = self.get_station_by_line(
-                line_name, station_index
-            )
+            self.start_station = designated_station
 
     def initialize_trains(self, amount):
         """
@@ -318,6 +367,24 @@ class Base_Map:
                     index + 1,
                     self.start_station
                 )
+            )
+
+    def distribute_road(self, paths, total_cost_dict, extra_cost_dict):
+        def get_total_cost(path):
+            return total_cost_dict[path]
+
+        if not isinstance(paths, list):
+            raise TypeError("paths must be a list type object")
+        elif not isinstance(total_cost_dict, dict):
+            raise TypeError("total_cost_dict must be a dict type object")
+        elif not isinstance(extra_cost_dict, dict):
+            raise TypeError("extra_cost_dict must be a dict type object")
+        for train in self.trains:
+            designated_path = min(paths, key=get_total_cost)
+            train.path = designated_path
+            total_cost_dict[designated_path] += (
+                2 if extra_cost_dict[designated_path] > 0
+                else 1
             )
 
     def __str__(self):
