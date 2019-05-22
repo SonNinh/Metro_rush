@@ -10,6 +10,7 @@ class Station_Line:
         self.stations = []
         self.crossing_lines = {}
         self.circular = False
+        self.drawed = False
 
     def get_stations(self):
         return self.stations
@@ -89,7 +90,8 @@ class Station_Line:
             - station: a Station type object
         """
         if isinstance(station, Station):
-            station.update_line(self)
+            if self not in station.connected_lines:
+                station.update_line(self)
             self.stations.append(station)
         else:
             raise TypeError("station must be a Station type object")
@@ -162,6 +164,8 @@ class Station:
         self.is_intersection = False
         self.over = 0
         self.occupied = False
+        self.pos = [200, 200]
+        self.located = False
 
     def update_line(self, new_line):
         """
@@ -238,6 +242,9 @@ class Base_Map:
             self.lines.append(line)
         else:
             raise TypeError("line must be a Station_Line object")
+
+    def get_all_lines(self):
+        return self.lines
 
     def get_line(self, line_name):
         """

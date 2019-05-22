@@ -1,0 +1,190 @@
+#Red Line
+Dilshad Garden,200,200
+Jhil Mil,210,200
+Mansarovar Park,220,200
+Shahdara,230,200
+Welcome,240,200
+Seelampur,250,200
+Shastri Park,260,200
+Kashmere Gate,270,200
+Tis Hazari,280,200
+Pul Bangash,290,200
+Pratap Nagar,300,200
+Shastri Nagar,310,200
+Inder Lok,320,200
+Kanhaiya Nagar,330,200
+Keshav Puram,340,200
+Netaji Subhash Place,350,200
+Kohat Enclave,360,200
+Pitam Pura,370,200
+Rohini East,380,200
+Rohini West,390,200
+Rithala,400,200
+#Yellow Line
+Samaypur Badli,270,90
+"Rohini Sector 18,19",270,100
+Haiderpur Badli Mor,270,110
+Jahangirpuri,270,120
+Adarsh Nagar,270,130
+Azadpur,270,140
+Model Town,270,150
+G.T.B. Nagar,270,160
+Vishwavidyalaya,270,170
+Vidhan Sabha,270,180
+Civil Lines,270,190
+Kashmere Gate,270,200
+Chandni Chowk,270,210
+Chawri Bazar,270,220
+New Delhi,270,230
+Rajiv Chowk,270,240
+Patel Chowk,270,250
+Central Secretariat,270,260
+Udyog Bhawan,270,270
+Lok Kalyan Marg,270,280
+Jorbagh,270,290
+INA,270,300
+AIIMS,270,310
+Green Park,270,320
+Hauz Khas,270,330
+Malviya Nagar,270,340
+Saket,270,350
+Qutab Minar,270,360
+Chhattarpur,270,370
+Sultanpur,270,380
+Ghitorni,270,390
+Arjan Garh,270,400
+Guru Dronacharya,270,410
+Sikandarpur,270,420
+MG Road,270,430
+IFFCO Chowk,270,440
+Huda City Centre,270,450
+#Blue Line
+Dwarka Sec-21,550,240
+Dwarka Sec-08,540,240
+Dwarka Sec-09,530,240
+Dwarka Sec-10,520,240
+Dwarka Sec-11,510,240
+Dwarka Sec-12,500,240
+Dwarka Sec-13,490,240
+Dwarka Sec-14,480,240
+Dwarka,470,240
+Dwarka Mor,460,240
+Nawada,450,240
+Uttam Nagar West,440,240
+Uttam Nagar East,430,240
+Janak Puri West,420,240
+Janak Puri East,410,240
+Tilak Nagar,400,240
+Subhash Nagar,390,240
+Tagore Garden,380,240
+Rajouri Garden,370,240
+Ramesh Nagar,360,240
+Moti Nagar,350,240
+Kirti Nagar,340,240
+Shadipur,330,240
+Patel Nagar,320,240
+Rajendra Place,310,240
+Karol Bagh,300,240
+Jhandewalan,290,240
+R K Ashram Marg,280,240
+Rajiv Chowk,270,240
+Barakhamba,260,240
+Mandi House,250,240
+Pragati Maidan,240,240
+Indraprastha,230,240
+Yamuna Bank,220,240
+Akshardham,210,240
+Mayur Vihar Phase-1,200,240
+Mayur Vihar Extention,190,240
+New Ashok Nagar,180,240
+Noida Sector-15,170,240
+Noida Sector-16,160,240
+Noida Sector-18,150,240
+Botanical Garden,140,240
+Golf Course,130,240
+Noida City Center,120,240
+#Airport Express
+New Delhi-Airport Express,200,200
+Shivaji Stadium,200,190
+Dhaula Kuan,200,180
+Delhi Aero City,200,170
+IGI Airport,200,160
+Dwarka Sec-21-Airport,200,150
+#Violet Line
+Kashmere Gate,270,200
+Lal Quila,266,208
+Jama Masjid,262,216
+Delhi Gate,258,224
+ITO,254,232
+Mandi House,250,240
+Central Secretariat,270,260
+Janpath,277,267
+Khan Market,284,274
+Jawaharlal Nehru Stadium,291,281
+Jangpura,298,288
+Lajpat Nagar,305,295
+Moolchand,312,302
+Kailash Colony,319,309
+Nehru Place,326,316
+Kalkaji Mandir,333,323
+Govind Puri,340,330
+Okhla,347,337
+Jasola,354,344
+Sarita Vihar,361,351
+Mohan Estate,368,358
+Tughlakabad,375,365
+Badarpur,382,372
+Sarai,389,379
+N.H.P.C. Chowk,396,386
+Mewala Maharajpur,403,393
+Sector 28 Faridabad,410,400
+Badkal Mor,417,407
+Old Faridabad,424,414
+Neelam Chowk Ajronda,431,421
+Bata Chowk,438,428
+Escorts Mujesar,445,435
+#Magenta Line
+Janakpuri West,369,363
+Dabri Mor,360,360
+Dashrath Puri,351,357
+Palam,342,354
+Sadar Bazaar Cantonment,333,351
+Terminal 1 IGI Airport,324,348
+Shankar Vihar,315,345
+Vasant Vihar,306,342
+Munirka,297,339
+R.K Puram,288,336
+IIT Delhi,279,333
+Hauz Khas,270,330
+Panchsheel Park,282,328
+Chirag Delhi,294,326
+Greater Kailash,306,324
+Nehru Enclave,318,322
+Kalkaji Mandir,333,323
+Okhla N.S.I.C,308,312
+Sukhdev Vihar,283,301
+Jamia Millia Islamia,258,290
+Okhla Vihar,233,279
+Jasola Vihar Shaheen Bagh,208,268
+Kalindi Kunj,183,257
+Okhla Bird Sanctuary,158,246
+Botanical Garden,140,240
+#Pink Line
+Majlis Park,261,141
+Azadpur,270,140
+Shalimar Bagh,310,170
+Netaji Subhash Place,350,200
+Shakurpur,355,210
+Punjabi Bagh West,360,220
+ESI Hospital,365,230
+Rajouri Garden,370,240
+Maya Puri,357,247
+Naraina Vihar,344,254
+Delhi Cantt,331,261
+Durgabai Deshmukh South Campus,318,268
+Sir Vishweshwaraiah Moti Bagh,305,275
+Bhikaji Cama Place,292,282
+Sarojini Nagar,279,289
+INA,270,300
+South Extension,287,297
+Lajpat Nagar,305,295

@@ -2,6 +2,8 @@
 from base_graph import Base_Map, Station, Station_Line, Train
 from utility import print_error_message
 from time import time
+from math import sin, cos, atan2, pi
+import csv
 
 
 def process_line_block(index, content, base_map):
@@ -139,18 +141,26 @@ def minimize(path):
 def find_path(layers, base_map, end_info):
     path = []
     cur_info = end_info
+
     for layer in reversed(layers):
+        print(layer)
+
         for node in layer:
             base_map.get_station_by_line(node[0], node[1]).over = 0
+            # print(len(base_map.get_line(node[0]).get_stations()), abs(node[1] - cur_info[1]))
             if node[0] == cur_info[0]:
                 if abs(node[1]-cur_info[1]) == 1:
+                    cur_info = node
+                    path.insert(0, cur_info)
+
+                elif abs(node[1] - cur_info[1]) == len(base_map.get_line(node[0]).get_stations())-2:
                     cur_info = node
                     path.insert(0, cur_info)
 
             elif base_map.get_station_by_line(node[0], node[1]) == base_map.get_station_by_line(cur_info[0], cur_info[1]):
                 cur_info = node
                 path.insert(0, cur_info)
-
+    print(path)
     return path
 
 
@@ -162,22 +172,33 @@ def find_bounding_nodes(base_map, layers, start_info):
 
         idx = 0
         for i, line in enumerate(cur_conn_line):
+            all_stations = line.get_stations()
             if line.name != node[0]:
                 idx = line.get_stations().index(cur_node)
-                if base_map.get_station_by_line(line.name, idx).over < len(cur_conn_line):
+                if all_stations[idx].over < 2:
                     if not (line.name == start_info[0] and idx == start_info[1]):
                         bounding_nodes.append((line.name, idx))
-                        base_map.get_station_by_line(line.name, idx).over += 1
-
+                        all_stations[idx].over += 1
             else:
-                if node[1] > 0 and base_map.get_station_by_line(node[0], node[1]-1).over == 0:
+                if node[1] > 0 and all_stations[node[1]-1].over == 0:
                     if not (node[0] == start_info[0] and node[1]-1 == start_info[1]):
                         bounding_nodes.append((node[0], node[1]-1))
-                        base_map.get_station_by_line(node[0], node[1]-1).over += 1
-                if node[1] < len(line.get_stations())-1 and base_map.get_station_by_line(node[0], node[1]+1).over == 0:
+                        all_stations[node[1]-1].over += 1
+                elif node[1] == 0:
+                    if all_stations[0] == all_stations[-1] and all_stations[-2].over == 0:
+                        # bounding_nodes.append((node[0], len(line.get_stations())-1))
+                        bounding_nodes.append((node[0], len(all_stations)-2))
+                        all_stations[-2].over += 1
+
+                if node[1] < len(line.get_stations())-1 and all_stations[node[1]+1].over == 0:
                     if not (node[0] == start_info[0] and node[1]+1 == start_info[1]):
                         bounding_nodes.append((node[0], node[1]+1))
-                        base_map.get_station_by_line(node[0], node[1]+1).over += 1
+                        all_stations[node[1]+1].over += 1
+                elif node[1] == len(all_stations)-1:
+                    if all_stations[0] == all_stations[-1] and all_stations[1].over == 0:
+                        # bounding_nodes.append((node[0], 0))
+                        bounding_nodes.append((node[0], 1))
+                        all_stations[1].over += 1
 
     return bounding_nodes
 
@@ -204,18 +225,20 @@ def bfs(base_map, train, start_info, end_info, th):
 
 
 def main():
-    # base_map, start_info, end_info, amount_of_trains = read_input("test_2")
+    # base_map, start_info, end_info, amount_of_trains = read_input("circular_test")
     base_map, start_info, end_info, amount_of_trains = read_input("delhi-metro-stations")
     base_map.get_station_by_line(start_info[0], start_info[1]).occupied = True
     ls_trains = []
     num_train = 0
     compl = []
     while len(compl) < amount_of_trains:
-        if len(ls_trains) < amount_of_trains*2:
+        # print('complete', len(compl), 'num train:', len(ls_trains))
+        if len(ls_trains) < amount_of_trains*5:
             train1 = Train(start_info[0], start_info[1])
             ls_trains.append(train1)
             train2 = Train(start_info[0], start_info[1])
             ls_trains.append(train2)
+
         base_map.get_station_by_line(start_info[0], start_info[1]).occupied = True
 
         for th, train in enumerate(ls_trains):
@@ -226,21 +249,28 @@ def main():
                 cur_conn_line = cur_node.get_conn_lines()
 
                 for i, line in enumerate(cur_conn_line):
+                    all_stations = line.get_stations()
                     if line.name != train.line:
-                        idx = line.get_stations().index(cur_node)
+                        idx = all_stations.index(cur_node)
                         bounding_nodes.append((line.name, idx))
-
                     else:
-                        if train.index > 0 and not base_map.get_station_by_line(train.line, train.index-1).occupied:
+                        if train.index > 0 and not all_stations[train.index-1].occupied:
                             bounding_nodes.append((train.line, train.index-1))
-                        if train.index < len(line.get_stations())-1 and not base_map.get_station_by_line(train.line, train.index+1).occupied:
+                        else:
+                            if all_stations[0] == all_stations[-1] and not all_stations[-2].occupied:
+                                bounding_nodes.append((train.line, len(all_stations)-2))
+
+                        if train.index < len(line.get_stations())-1 and not all_stations[train.index+1].occupied:
                             bounding_nodes.append((train.line, train.index+1))
+                        else:
+                            if all_stations[0] == all_stations[-1] and not all_stations[1].occupied:
+                                bounding_nodes.append((train.line, 1))
 
                 if len(bounding_nodes) == 1:
                     # if there is only 1 possible station to move from current train
                     new_node = base_map.get_station_by_line(bounding_nodes[0][0], bounding_nodes[0][1])
 
-                    if bounding_nodes[0][0] == end_info[0] and bounding_nodes[0][1] == end_info[1]:
+                    if bounding_nodes[0] == end_info:
                         num_train += 1
                         compl.append(th)
                         train.done = True
@@ -262,7 +292,7 @@ def main():
                     next_node = bfs(base_map, train, start_info, end_info, th)
                     if next_node:
                         new_node = base_map.get_station_by_line(next_node[0], next_node[1])
-                        if next_node[0] == end_info[0] and next_node[1] == end_info[1]:
+                        if next_node == end_info:
                             # if next staion is the end staion
                             num_train += 1
                             compl.append(th)
@@ -278,7 +308,7 @@ def main():
 
         # for i, train in enumerate(ls_trains):
         #     print(i, train.line, train.index)
-        print()
+        # print()
     compl.sort()
     print(compl)
 
@@ -302,16 +332,12 @@ def main():
             if not ls_trains[i].done:
                 # print(len(ls_trains[i].path), i)
                 if len(ls_trains[i].path) > 1:
-                    # print(i)
                     station_info = ls_trains[i].path[1]
                     station = base_map.get_station_by_line(station_info[0], station_info[1])
                     if (not station.trains) or station == end_node or station.trains[0][0] == i:
-                        # print(i, 'a')
                         pre_station_info = ls_trains[i].path[0]
                         pre_station = base_map.get_station_by_line(pre_station_info[0], pre_station_info[1])
                         if pre_station_info == start_info:
-                            # print(i, 'b')
-                            # input()
                             try:
                                 pop_idx = pre_station.trains.index((i, start_info[0], start_info[1]))
                                 pre_station.trains.pop(pop_idx)
@@ -319,7 +345,6 @@ def main():
                                 pass
 
                         else:
-                            # print(i, 'c')
                             pre_station.trains = []
                         if station_info == end_info:
                             station.trains.append((i, station_info[0], station_info[1]))
@@ -345,7 +370,180 @@ def main():
     #     print(ls_trains[i].path)'''
 
 
+def draw_tail():
+    pass
+
+
+def draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, angle):
+    delta = 10
+    ls_stations = line_for_draw.get_stations()
+    for sta in ls_stations:
+
+        if sta.located:
+            print('as')
+            ref_station = sta
+            idx_a = ls_stations.index(ref_station)
+            idx_b = ls_stations.index(ref_station)
+            break
+    else:
+        idx_a = 0
+        idx_b = 0
+    ref_angle = angle
+
+    print('index:', idx_a, idx_b)
+    while idx_a < len(ls_stations)-1:
+        # print('as')
+        for th, station in enumerate(ls_stations[idx_a+1:], idx_a+1):
+            conn_lines = station.get_conn_lines()
+            if len(conn_lines) > 1:
+                for line in conn_lines:
+                    if line.name not in ls_lines_not_drawed and not line.drawed:
+                        ls_lines_not_drawed.append(line.name)
+
+                if station.located:
+                    diff_x = ls_stations[th].pos[0]-ls_stations[idx_a].pos[0]
+                    diff_y = ls_stations[th].pos[1]-ls_stations[idx_a].pos[1]
+                    for i, station in enumerate(ls_stations[idx_a+1:th], 1):
+                        station.pos[0] = int(ls_stations[idx_a].pos[0] + diff_x//(abs(th-idx_a))*i)
+                        station.pos[1] = int(ls_stations[idx_a].pos[1] + diff_y//(abs(th-idx_a))*i)
+                        station.located = True
+                    idx_a = th
+                    ref_angle = atan2(diff_y, diff_x)
+                    break
+        else:
+            # draw_tail()
+            for th, station in enumerate(ls_stations[idx_a+1:], idx_a+1):
+                station.pos[0] = int(delta*cos(ref_angle)) + ls_stations[th-1].pos[0]
+                station.pos[1] = int(delta*sin(ref_angle)) + ls_stations[th-1].pos[1]
+                station.located = True
+            idx_a = len(ls_stations)-1
+
+    th = idx_b
+    while idx_b > 0:
+        # print('as')
+
+        for station in reversed(ls_stations[:idx_b]):
+            th -= 1
+            conn_lines = station.get_conn_lines()
+            if len(conn_lines) > 1:
+                for line in conn_lines:
+                    if line.name not in ls_lines_not_drawed and not line.drawed:
+                        ls_lines_not_drawed.append(line.name)
+
+                if station.located:
+                    diff_x = ls_stations[th].pos[0]-ls_stations[idx_b].pos[0]
+                    diff_y = ls_stations[th].pos[1]-ls_stations[idx_b].pos[1]
+                    i = 0
+                    for station in reversed(ls_stations[th:idx_b]):
+                        i += 1
+                        station.pos[0] = int(ls_stations[idx_b].pos[0] + diff_x//(abs(th-idx_b))*i)
+                        station.pos[1] = int(ls_stations[idx_b].pos[1] + diff_y//(abs(th-idx_b))*i)
+                        station.located = True
+                    idx_b = th
+                    ref_angle = atan2(diff_y, diff_x)
+                    break
+        else:
+            # draw_tail()
+            th = idx_b
+            for station in reversed(ls_stations[:idx_b]):
+                th -= 1
+                station.pos[0] = -int(delta*cos(ref_angle)) + ls_stations[th+1].pos[0]
+                station.pos[1] = -int(delta*sin(ref_angle)) + ls_stations[th+1].pos[1]
+                station.located = True
+            idx_b = 0
+
+    # for line_name in ls_lines_not_drawed:
+    #     line_draw = base_map.get_line(line_name)
+    #     if not line_draw.drawed:
+    #         draw_line(line_draw, ls_sta_located, ls_lines_not_drawed, base_map, 0)
+
+
+def main_gui():
+    base_map, start_info, end_info, amount_of_trains = read_input("delhi-metro-stations")
+
+    all_lines = base_map.get_all_lines()
+    # for line in lines:
+    #     print(line.name)
+    ls_sta_located = []
+    ls_lines_not_drawed = []
+
+    with open('stations.csv', 'w', newline='') as f:
+        thewriter = csv.writer(f)
+
+        ls_lines = base_map.get_all_lines()
+        for th, line in enumerate(ls_lines):
+            # line_for_draw = base_map.get_line('Red Line')
+            if not line.drawed:
+                print(line.name)
+                draw_line(line, ls_sta_located, ls_lines_not_drawed, base_map, th*pi/2)
+
+            header = '#'+line.name
+            thewriter.writerow([header])
+            for station in line.get_stations():
+                print(station.pos, station.located)
+                thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+
+        # line_for_draw = base_map.get_line('Pink Line')
+        # if not line_for_draw.drawed:
+        #     draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, 0)
+        #
+        # header = '#'+line_for_draw.name
+        # thewriter.writerow([header])
+        # for station in line_for_draw.get_stations():
+        #     print(station.pos, station.located)
+        #     thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+        #
+        # line_for_draw = base_map.get_line('Yellow Line')
+        # if not line_for_draw.drawed:
+        #     draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, pi/2)
+        #
+        # header = '#'+line_for_draw.name
+        # thewriter.writerow([header])
+        # for station in line_for_draw.get_stations():
+        #     print(station.pos, station.located)
+        #     thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+        #
+        # line_for_draw = base_map.get_line('Blue Line')
+        # if not line_for_draw.drawed:
+        #     draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, 0)
+        #
+        # header = '#'+line_for_draw.name
+        # thewriter.writerow([header])
+        # for station in line_for_draw.get_stations():
+        #     print(station.pos, station.located)
+        #     thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+        #
+        # line_for_draw = base_map.get_line('Red Line')
+        # if not line_for_draw.drawed:
+        #     draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, pi/5)
+        #
+        # header = '#'+line_for_draw.name
+        # thewriter.writerow([header])
+        # for station in line_for_draw.get_stations():
+        #     print(station.pos, station.located)
+        #     thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+        #
+        # line_for_draw = base_map.get_line('Magenta Line')
+        # if not line_for_draw.drawed:
+        #     draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, pi/6)
+        #
+        # header = '#'+line_for_draw.name
+        # thewriter.writerow([header])
+        # for station in line_for_draw.get_stations():
+        #     print(station.pos, station.located)
+        #     thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+        #
+        # line_for_draw = base_map.get_line('Violet Line')
+        # if not line_for_draw.drawed:
+        #     draw_line(line_for_draw, ls_sta_located, ls_lines_not_drawed, base_map, pi/7)
+        #
+        # header = '#'+line_for_draw.name
+        # thewriter.writerow([header])
+        # for station in line_for_draw.get_stations():
+        #     print(station.pos, station.located)
+        #     thewriter.writerow([station.name, station.pos[0], station.pos[1]])
+
+
 if __name__ == "__main__":
-    # start = time()
-    main()
-    # print('time:', time()-start)
+    # main()
+    main_gui()

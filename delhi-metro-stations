@@ -143,7 +143,6 @@
 30:Neelam Chowk Ajronda
 31:Bata Chowk
 32:Escorts Mujesar
-33:Kashmere Gate:Conn: Red line
 #Magenta Line
 1:Janakpuri West:Conn: Blue Line
 2:Dabri Mor
@@ -191,5 +190,5 @@
 18:Lajpat Nagar:Conn: Violet Line
 
 START=Red Line:15
-END=Blue Line:21
+END=Blue Line:36
 TRAINS=30
